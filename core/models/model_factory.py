@@ -6,6 +6,7 @@ from core.models import vit_seg_modeling
 import torch.optim.lr_scheduler as lr_scheduler
 from core.models.vit_seg_modeling import CONFIGS as CONFIGS_ViT_seg
 
+
 class Model(object):
     def __init__(self, configs):
         self.configs = configs
@@ -34,7 +35,8 @@ class Model(object):
 
         if configs.model_name in networks_map:
             Network = networks_map[configs.model_name]
-            self.network = Network(self.num_layers, self.num_hidden, configs).to(configs.device)
+            self.network = Network(config_vit, img_size=configs.img_size, num_classes=config_vit.n_classes).to(
+                configs.device)
         else:
             raise ValueError('Name of network unknown %s' % configs.model_name)
         # print("Network state:")
@@ -60,19 +62,20 @@ class Model(object):
     def train(self, data, mask, itr):
         frames = data
         self.network.train()
-        frames_tensor = torch.FloatTensor(frames).to(self.configs.device)
+        image_batch, label_batch = data
+        image_batch = torch.FloatTensor(image_batch).to(self.configs.device)
+        label_batch = torch.FloatTensor(label_batch).to(self.configs.device)
+
         mask_tensor = torch.FloatTensor(mask).to(self.configs.device)
 
-        next_frames = self.network(frames_tensor, mask_tensor)
-        ground_truth = frames_tensor
+        outputs = self.network(image_batch)
+        ground_truth = label_batch
 
-        batch_size = next_frames.shape[0]
+        # batch_size = next_frames.shape[0]
 
         self.optimizer.zero_grad()
-        loss_l1 = self.L1_loss(next_frames,
-                               ground_truth[:, 1:])
-        loss_l2 = self.MSE_criterion(next_frames,
-                                     ground_truth[:, 1:])
+        loss_l1 = self.L1_loss(outputs, ground_truth)
+        loss_l2 = self.MSE_criterion(outputs, ground_truth)
         loss_gen = loss_l2
         loss_gen.backward()
         self.optimizer.step()
@@ -82,12 +85,13 @@ class Model(object):
             # self.scheduler_F.step()
             # self.scheduler_D.step()
             print('Lr decay to:%.8f', self.optimizer.param_groups[0]['lr'])
-        return next_frames, loss_l1.detach().cpu().numpy(), loss_l2.detach().cpu().numpy()
+        return outputs, loss_l1.detach().cpu().numpy(), loss_l2.detach().cpu().numpy()
 
     def test(self, data, mask):
         frames = data
         self.network.eval()
-        frames_tensor = torch.FloatTensor(frames).to(self.configs.device)
-        mask_tensor = torch.FloatTensor(mask).to(self.configs.device)
-        next_frames = self.network(frames_tensor, mask_tensor)
-        return next_frames.detach().cpu().numpy()
+        image_batch, label_batch = data
+        image_batch = torch.FloatTensor(image_batch).to(self.configs.device)
+        label_batch = torch.FloatTensor(label_batch).to(self.configs.device)
+        outputs = self.network(image_batch)
+        return outputs.unsqueeze(2).detach().cpu().numpy()

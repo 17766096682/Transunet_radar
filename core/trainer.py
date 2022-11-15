@@ -81,27 +81,32 @@ def test(model, test_input_handle, configs, itr):
             #     break
             print(batch_id)
 
-            batch_size = data.shape[0]
-            real_input_flag = np.zeros(
-                (batch_size,
-                 configs.total_length - configs.input_length - 1,
-                 configs.img_height // configs.patch_size,
-                 configs.img_width // configs.patch_size,
-                 configs.patch_size ** 2 * configs.img_channel))
+            batch_size = data[0].shape[0]
+            # real_input_flag = np.zeros(
+            #     (batch_size,
+            #      configs.total_length - configs.input_length - 1,
+            #      configs.img_height // configs.patch_size,
+            #      configs.img_width // configs.patch_size,
+            #      configs.patch_size ** 2 * configs.img_channel))
 
-            img_gen = model.test(data, real_input_flag)
-            img_gen = img_gen.transpose(0, 1, 3, 4, 2)  # * 0.5 + 0.5
-            test_ims = data.detach().cpu().numpy().transpose(0, 1, 3, 4, 2)  # * 0.5 + 0.5
+            img_gen = model.test(data, None)
+            # img_gen = model.test(data, real_input_flag)
+            # img_gen = img_gen.transpose(0, 1, 3, 4, 2)  # * 0.5 + 0.5
+            test_ims = torch.cat(data,dim=1)
+            test_ims  = test_ims.unsqueeze(2)
+            test_ims = test_ims.detach().cpu().numpy().transpose(0, 1, 3, 4, 2)  # * 0.5 + 0.5
             output_length = configs.total_length - configs.input_length
             output_length = min(output_length, configs.total_length - 1)
-            test_ims = preprocess.reshape_patch_back(test_ims, configs.patch_size)
-            img_gen = preprocess.reshape_patch_back(img_gen, configs.patch_size)
-            img_out = img_gen[:, -output_length:, :]
+            # test_ims = preprocess.reshape_patch_back(test_ims, configs.patch_size)
+            # img_gen = preprocess.reshape_patch_back(img_gen, configs.patch_size)
+            img_gen = img_gen.transpose(0, 1, 3, 4, 2)
+            img_out = img_gen
 
             # MSE per frame
             for i in range(output_length):
 
                 x = test_ims[:, i + configs.input_length, :]
+                # x = test_ims[:, i, :]
                 gx = img_out[:, i, :]
                 gx = np.maximum(gx, 0)
                 gx = np.minimum(gx, 1)

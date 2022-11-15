@@ -29,7 +29,7 @@ def configs():
     parser.add_argument('--filter_size', type=int, default=(5, 5))
     parser.add_argument('--stride', type=int, default=1)
     parser.add_argument('--tau', type=int, default=5)
-    parser.add_argument('--layer_norm',type=bool,default=True)
+    parser.add_argument('--layer_norm', type=bool, default=True)
     parser.add_argument('--cell_mode', type=str, default='normal')
     parser.add_argument('--model_mode', type=str, default='normal')
     parser.add_argument('--lr', type=float, default=1e-3)
@@ -46,7 +46,14 @@ def configs():
     parser.add_argument('--save_dir', type=str, default='checkpoints/mau/')
     parser.add_argument('--gen_frm_dir', type=str, default='results/mau/')
     parser.add_argument('--scheduled_sampling', type=bool, default=True)
-    parser.add_argument('--sampling_stop_iter', type=int, default=50000)  #训练到这里的时候开始调整学习率 , 并且取消教学强制策略
+    parser.add_argument('--sampling_stop_iter', type=int, default=50000)  # 训练到这里的时候开始调整学习率 , 并且取消教学强制策略
     parser.add_argument('--sampling_start_value', type=float, default=1.0)
     parser.add_argument('--sampling_changing_rate', type=float, default=0.00002)
+
+    parser.add_argument('--vit_name', type=str, default='R50-ViT-B_16', help='select one vit model')
+    parser.add_argument('--num_classes', type=int, default=10, help='output channel of network')
+    parser.add_argument('--n_skip', type=int, default=3, help='using number of skip-connect, default is num')
+    parser.add_argument('--vit_patches_size', type=int, default=16, help='vit_patches_size, default is 16')
+    parser.add_argument('--img_size', type=int, default=128)
+
     return parser

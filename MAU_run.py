@@ -92,14 +92,15 @@ def train_wrapper(model):
         for ims in train_input_handle:
             if itr > args.max_iterations:
                 break
-            batch_size = ims.shape[0]
-            eta, real_input_flag = schedule_sampling(eta, itr, args.img_channel, batch_size)
+            # batch_size = ims.shape[0]
+            # eta, real_input_flag = schedule_sampling(eta, itr, args.img_channel, batch_size)
 
             if itr == 0:
                 print('Validate:')
                 trainer.test(model, val_input_handle, args, itr)
 
-            trainer.train(model, ims, real_input_flag, args, itr)
+            # trainer.train(model, ims, real_input_flag, args, itr)
+            trainer.train(model, ims, None, args, itr)
             if itr % args.snapshot_interval == 0 and itr > begin:
                 model.save(itr)
 
