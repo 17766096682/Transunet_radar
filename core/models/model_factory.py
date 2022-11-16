@@ -66,7 +66,7 @@ class Model(object):
         image_batch = torch.FloatTensor(image_batch).to(self.configs.device)
         label_batch = torch.FloatTensor(label_batch).to(self.configs.device)
 
-        mask_tensor = torch.FloatTensor(mask).to(self.configs.device)
+        # mask_tensor = torch.FloatTensor(mask).to(self.configs.device)
 
         outputs = self.network(image_batch)
         ground_truth = label_batch

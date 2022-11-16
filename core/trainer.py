@@ -92,8 +92,8 @@ def test(model, test_input_handle, configs, itr):
             img_gen = model.test(data, None)
             # img_gen = model.test(data, real_input_flag)
             # img_gen = img_gen.transpose(0, 1, 3, 4, 2)  # * 0.5 + 0.5
-            test_ims = torch.cat(data,dim=1)
-            test_ims  = test_ims.unsqueeze(2)
+            test_ims = torch.cat(data, dim=1)
+            test_ims = test_ims.unsqueeze(2)
             test_ims = test_ims.detach().cpu().numpy().transpose(0, 1, 3, 4, 2)  # * 0.5 + 0.5
             output_length = configs.total_length - configs.input_length
             output_length = min(output_length, configs.total_length - 1)
@@ -408,7 +408,7 @@ def escore(obs, pre, low, high):
 
 def cal_hss_csi(obs, pre, low, high):
     hits, misses, falsealarms, correctnegatives = prep_clf(obs=obs, pre=pre,
-                                                           low=low/70.0, high=high/70.0)
+                                                           low=low / 70.0, high=high / 70.0)
     hss = HSS(hits, misses, falsealarms, correctnegatives)
     csi = CSI(hits, misses, falsealarms, correctnegatives)
     return hss, csi
